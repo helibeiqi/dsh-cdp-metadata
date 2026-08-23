@@ -1,5 +1,5 @@
 {
-  "name": "dsh-cdp-metadata",
+  "name": "@helibeiqi/dsh-cdp-metadata",
   "version": "0.1.0",
   "description": "Capability Description Protocol (CDP) v0.1 — read-only AI-readable capability metadata layer for DSH Cordis plugins.",
   "type": "module",
@@ -40,5 +40,9 @@
     "vitest": "^1.6.0",
     "zod": "^3.23.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/helibeiqi/dsh-cdp-metadata.git"
+  }
 }
