@@ -1,0 +1,55 @@
+{
+  "capability": {
+    "id": "stock_analyzer@v1.0",
+    "identity": {
+      "name": "股票技术分析器",
+      "archetype": "analyzer"
+    },
+    "boundaries": {
+      "can": [
+        "基于历史K线计算技术指标",
+        "识别常见形态（头肩顶、双底等）",
+        "给出支撑位与阻力位"
+      ],
+      "cannot": [
+        "预测明天股价涨跌",
+        "提供买卖点位建议",
+        "保证收益"
+      ],
+      "requires": [
+        "输入为有效历史K线序列",
+        "市场处于非停牌状态"
+      ]
+    },
+    "cognitive_style": {
+      "reasoning_type": "inductive",
+      "uncertainty_expression": "explicit",
+      "failure_mode": "fail_loud",
+      "archetype": "analyzer"
+    },
+    "output": {
+      "semantic_tags": [
+        "technical_analysis",
+        "pattern_recognition",
+        "support_resistance"
+      ],
+      "downstream_hints": [
+        {
+          "if_tag": "technical_analysis",
+          "suggest_to": "risk_advisor@v1.0"
+        }
+      ]
+    },
+    "runtime": {
+      "side_effects": {
+        "level": "read-only",
+        "scope": ["market_data_cache"]
+      },
+      "cost": {
+        "compute": "low",
+        "latency": "<1s",
+        "monetary": "free"
+      }
+    }
+  }
+}

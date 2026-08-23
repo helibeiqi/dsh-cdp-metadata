@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/helibeiqi/dsh-cdp-metadata/schema/cdp-v0.1.json",
+  "title": "CDP v0.1 Capability Description",
+  "description": "Capability Description Protocol v0.1 规范。本文件是规范的单一真理源，后续 zod 实现（src/schema.ts）必须与之逐项一致。覆盖 cognitive_style、semantic_tags/downstream_hints、side_effects/cost 三块真实增量，以及顶层 identity/boundaries。",
+  "type": "object",
+  "required": ["capability"],
+  "additionalProperties": false,
+  "properties": {
+    "capability": { "$ref": "#/$defs/Capability" }
+  },
+  "$defs": {
+    "Capability": {
+      "type": "object",
+      "required": ["id", "identity", "boundaries", "cognitive_style", "output", "runtime"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+@v?\\d+\\.\\d+$",
+          "description": "能力唯一标识，形如 name@v1.0 或 name@1.0。用作注册表主键，重复由 resolver 按 prefix/error 策略处理。"
+        },
+        "identity": { "$ref": "#/$defs/Identity" },
+        "boundaries": { "$ref": "#/$defs/Boundaries" },
+        "cognitive_style": { "$ref": "#/$defs/CognitiveStyle" },
+        "output": { "$ref": "#/$defs/Output" },
+        "runtime": { "$ref": "#/$defs/Runtime" }
+      }
+    },
+    "Identity": {
+      "type": "object",
+      "required": ["name", "archetype"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "description": "人类可读名称，可含中文，仅供展示与检索。" },
+        "archetype": {
+          "type": "string",
+          "enum": ["analyzer", "executor", "advisor", "orchestrator", "validator"],
+          "description": "能力在系统中的角色原型。"
+        }
+      }
+    },
+    "Boundaries": {
+      "type": "object",
+      "required": ["can", "cannot", "requires"],
+      "additionalProperties": false,
+      "properties": {
+        "can": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "该能力声明能做到的事（自然语言短句）。"
+        },
+        "cannot": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "该能力明确不做/不应被误解为能做的事。L2 会对其与 can 做冲突启发式检测。"
+        },
+        "requires": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "使用该能力的前置条件。"
+        }
+      }
+    },
+    "CognitiveStyle": {
+      "type": "object",
+      "required": ["reasoning_type", "uncertainty_expression", "failure_mode", "archetype"],
+      "additionalProperties": false,
+      "properties": {
+        "reasoning_type": {
+          "type": "string",
+          "enum": ["deductive", "inductive", "abductive"],
+          "description": "推理范式：演绎/归纳/溯因。自陈声明，未经验证。"
+        },
+        "uncertainty_expression": {
+          "type": "string",
+          "enum": ["explicit", "implicit"],
+          "description": "不确定性是否被显式表达（explicit=输出含置信度/区间/保留；implicit=仅给确定性结论）。"
+        },
+        "failure_mode": {
+          "type": "string",
+          "enum": ["fail_loud", "fail_silent"],
+          "description": "失败模式：fail_loud=错误/越界时显式报错；fail_silent=静默返回空或退化结果。"
+        },
+        "archetype": {
+          "type": "string",
+          "enum": ["analyzer", "executor", "advisor", "orchestrator", "validator"],
+          "description": "与 identity.archetype 保持一致；若不一致，L2 给出告警。"
+        }
+      }
+    },
+    "Output": {
+      "type": "object",
+      "required": ["semantic_tags", "downstream_hints"],
+      "additionalProperties": false,
+      "properties": {
+        "semantic_tags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "输出语义标签，供跨插件路由与检索。downstream_hints.if_tag 必须在此集合内（L2 校验）。"
+        },
+        "downstream_hints": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DownstreamHint" },
+          "description": "跨插件路由提示：当某输出带 if_tag 时，建议交由 suggest_to 标识的能力处理。"
+        }
+      }
+    },
+    "DownstreamHint": {
+      "type": "object",
+      "required": ["if_tag", "suggest_to"],
+      "additionalProperties": false,
+      "properties": {
+        "if_tag": { "type": "string", "minLength": 1, "description": "必须命中本 capability 的 semantic_tags 之一。" },
+        "suggest_to": { "type": "string", "minLength": 1, "description": "建议路由到的目标能力 id 或 archetype。" }
+      }
+    },
+    "Runtime": {
+      "type": "object",
+      "required": ["side_effects", "cost"],
+      "additionalProperties": false,
+      "properties": {
+        "side_effects": { "$ref": "#/$defs/SideEffects" },
+        "cost": { "$ref": "#/$defs/Cost" }
+      }
+    },
+    "SideEffects": {
+      "type": "object",
+      "required": ["level", "scope"],
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["none", "read-only", "state-changing", "irreversible"],
+          "description": "副作用分级，与 DSH 权限三档（none/read-only/state-changing/irreversible）正交但语义对齐。"
+        },
+        "scope": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "受影响资源/系统范围描述。level=none 时应为空数组（L2 不一致告警）。"
+        }
+      }
+    },
+    "Cost": {
+      "type": "object",
+      "required": ["compute", "latency", "monetary"],
+      "additionalProperties": false,
+      "properties": {
+        "compute": { "type": "string", "enum": ["low", "mid", "high"], "description": "算力消耗分级。" },
+        "latency": {
+          "type": "string",
+          "pattern": "^(<)?\\d+(\\.\\d+)?(ms|[smh])$",
+          "description": "典型时延上界，如 <1s、500ms、2m、1h。L2 做格式校验，不验证真实性。"
+        },
+        "monetary": {
+          "type": "string",
+          "enum": ["free", "per_call", "metered"],
+          "description": "货币成本模型：免费/按次/计量。"
+        }
+      }
+    }
+  }
+}

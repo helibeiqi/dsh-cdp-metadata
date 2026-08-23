@@ -1,0 +1,30 @@
+{
+  "capability": {
+    "id": "conflict_demo@v1.0",
+    "identity": {
+      "name": "冲突示例",
+      "archetype": "analyzer"
+    },
+    "boundaries": {
+      "can": ["预测明天股价涨跌"],
+      "cannot": ["预测明天股价涨跌"],
+      "requires": ["需要数据"]
+    },
+    "cognitive_style": {
+      "reasoning_type": "deductive",
+      "uncertainty_expression": "explicit",
+      "failure_mode": "fail_loud",
+      "archetype": "analyzer"
+    },
+    "output": {
+      "semantic_tags": ["tag_a"],
+      "downstream_hints": [
+        { "if_tag": "tag_a", "suggest_to": "other" }
+      ]
+    },
+    "runtime": {
+      "side_effects": { "level": "none", "scope": [] },
+      "cost": { "compute": "low", "latency": "500ms", "monetary": "free" }
+    }
+  }
+}

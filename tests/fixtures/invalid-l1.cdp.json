@@ -1,0 +1,31 @@
+{
+  "capability": {
+    "id": "bad_id_no_version",
+    "identity": {
+      "name": "坏示例",
+      "archetype": "analyzer"
+    },
+    "boundaries": {
+      "can": [""],
+      "cannot": ["不做X"],
+      "requires": ["需要Y"]
+    },
+    "cognitive_style": {
+      "reasoning_type": "deductive",
+      "uncertainty_expression": "explicit",
+      "failure_mode": "fail_loud",
+      "archetype": "analyzer"
+    },
+    "output": {
+      "semantic_tags": ["tag1"],
+      "downstream_hints": [
+        { "if_tag": "tag1", "suggest_to": "other" }
+      ]
+    },
+    "runtime": {
+      "side_effects": { "level": "none", "scope": [] },
+      "cost": { "compute": "low", "latency": "1s", "monetary": "free" }
+    },
+    "extra_unknown_field": "should be rejected by additionalProperties"
+  }
+}

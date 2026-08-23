@@ -1,0 +1,17 @@
+# 可复制最小示例：在 Host 的 cordis.patch.yml 中插入本插件。
+# 配置只有 sources / validation / expose 三段，无 servers/pluginDirs/export/router/naming/schema 段。
+dsh-cdp-metadata:
+  sources:
+    - "./agent-plugins"
+  validation:
+    level: "L2"
+    onInvalid: "warn"
+    conflictStrategy: "prefix"
+  expose:
+    attachToTools: false
+
+# 如需把注解投影进工具 description，显式开启并写 bindings（因 identity.name 可能为中文，不靠名字猜）：
+#   expose:
+#     attachToTools: true
+#     bindings:
+#       stock_analyzer@v1.0: "dsh-tools:stock_analyzer"
