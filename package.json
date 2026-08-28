@@ -1,6 +1,6 @@
 {
   "name": "@helibeiqi/dsh-cdp-metadata",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Capability Description Protocol (CDP) v0.1 — read-only AI-readable capability metadata layer for DSH Cordis plugins.",
   "type": "module",
   "main": "dist/index.js",
